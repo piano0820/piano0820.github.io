@@ -3,8 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- PWA に必須：manifest を読み込む -->
 <link rel="manifest" href="manifest.json">
 
 <style>
@@ -13,4 +11,108 @@ body { margin: 0; padding: 0; }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat
+  grid-template-columns: repeat(15, 1fr);
+  gap: 0;
+  margin: 0;
+  width: 100vw;
+  box-sizing: border-box;
+}
+
+.cell {
+  width: 100%;
+  height: calc(100vw / 15);
+  background-color: white;
+  border: 2px solid #888;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  font-weight: bold;
+  user-select: none;
+}
+</style>
+</head>
+<body>
+
+<div class="grid" id="grid"></div>
+
+<script>
+// ★ document.write を使わず安全に生成する
+const grid = document.getElementById('grid');
+for (let i = 1; i <= 300; i++) {
+  const cell = document.createElement('div');
+  cell.className = 'cell';
+  grid.appendChild(cell);
+}
+</script>
+
+<script>
+let painting = false;
+let eraseMode = false;
+let startX = 0;
+let startY = 0;
+let moved = false;
+let scrolling = false;
+
+const slideThreshold = 10;
+const scrollThreshold = 20;
+
+function apply(el) {
+  el.style.backgroundColor = eraseMode ? 'white' : 'black';
+}
+
+grid.addEventListener('touchstart', (e) => {
+  const t = e.touches[0];
+  startX = t.clientX;
+  startY = t.clientY;
+  moved = false;
+  scrolling = false;
+
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  if (el && el.classList.contains('cell')) {
+    eraseMode = (el.style.backgroundColor === 'black');
+    apply(el);
+    painting = true;
+  }
+});
+
+grid.addEventListener('touchmove', (e) => {
+  const t = e.touches[0];
+  const dx = t.clientX - startX;
+  const dy = t.clientY - startY;
+
+  if (Math.abs(dy) > scrollThreshold) {
+    scrolling = true;
+    return;
+  }
+
+  if (scrolling) return;
+
+  if (painting && Math.abs(dx) > slideThreshold) {
+    painting = true;
+    moved = true;
+  }
+
+  if (painting) {
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    if (el && el.classList.contains('cell') && el.style.backgroundColor !== (eraseMode ? 'white' : 'black')) {
+      apply(el);
+    }
+  }
+});
+
+grid.addEventListener('touchend', () => {
+  painting = false;
+});
+</script>
+
+<!-- ★ PWA の service worker 登録 -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+</script>
+
+</body>
+</html>
