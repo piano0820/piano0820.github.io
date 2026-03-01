@@ -1,0 +1,9 @@
+{
+  "name": "pianolesson",
+  "short_name": "pianolesson",
+  "start_url": "/pianolesson/piano.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": []
+}
