@@ -2,113 +2,29 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ★ PWA に必須：manifest を読み込む -->
+<link rel="manifest" href="manifest.json">
+
 <style>
-  html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; padding: 0; }
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(5, calc(100vw / 5));
-    gap: 0;
-    padding: 0;
-    margin: 0;
-    width: 100vw;
-    box-sizing: border-box;
-  }
-
-  .cell {
-    width: 100%;
-    height: calc(100vw / 5);
-    background-color: white;
-    border: 2px solid #888;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 40px;
-    font-weight: bold;
-    user-select: none;
-  }
-</style>
-</head>
-<body>
-
-<div class="grid" id="grid">
-<script>
-for (let i = 1; i <= 300; i++) {
-  document.write(`<div class="cell">${i}</div>`);
-}
-</script>
-</div>
-
-<script>
-let painting = false;
-let eraseMode = false;
-let startX = 0;
-let startY = 0;
-let moved = false;
-let scrolling = false;
-
-const slideThreshold = 10;   // 横方向のしきい値
-const scrollThreshold = 20;  // 縦方向のしきい値（少し緩めに）
-
-function apply(el) {
-  el.style.backgroundColor = eraseMode ? "white" : "magenta";
+.grid {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  gap: 0;
+  margin: 0;
+  width: 100vw;
+  box-sizing: border-box;
 }
 
-const grid = document.getElementById("grid");
-
-grid.addEventListener("touchstart", (e) => {
-  const t = e.touches[0];
-  startX = t.clientX;
-  startY = t.clientY;
-  moved = false;
-  scrolling = false;
-  painting = false;
-
-  const el = document.elementFromPoint(startX, startY);
-  if (el && el.classList.contains("cell")) {
-    eraseMode = (el.style.backgroundColor === "magenta");
-  }
-});
-
-grid.addEventListener("touchmove", (e) => {
-  const t = e.touches[0];
-  const dx = t.clientX - startX;
-  const dy = t.clientY - startY;
-
-  // 縦方向が明確に大きい → スクロール扱い
-  if (Math.abs(dy) > scrollThreshold && Math.abs(dy) > Math.abs(dx)) {
-    scrolling = true;
-    return;
-  }
-
-  if (scrolling) return;
-
-  // 横方向がしきい値を超え、かつ縦より大きい → 塗り開始
-  if (!painting && Math.abs(dx) > slideThreshold && Math.abs(dx) > Math.abs(dy)) {
-    painting = true;
-    moved = true;
-  }
-
-  if (painting) {
-    const el = document.elementFromPoint(t.clientX, t.clientY);
-    if (el && el.classList.contains("cell")) apply(el);
-  }
-});
-
-grid.addEventListener("touchend", () => {
-  if (!moved && !scrolling) {
-    const el = document.elementFromPoint(startX, startY);
-    if (el && el.classList.contains("cell")) {
-      eraseMode = (el.style.backgroundColor === "magenta");
-      apply(el);
-    }
-  }
-  painting = false;
-});
-</script>
-
-</body>
-</html>
+.cell {
+  width: 100%;
+  height: calc(100vw / 15);
+  background-color: white;
+  border: 2px solid #888;
+  box-sizing: border-box;
+  display: flex;
+  justify
